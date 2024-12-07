@@ -24,10 +24,10 @@ class Game:
         while not self.game_finished():
             if first_player == 1:
                 self.player_turn(self.player1)
-                first_player = 2
+                self.player_turn(self.player2)
             else:
                 self.player_turn(self.player2)
-                first_player = 1
+                self.player_turn(self.player1)
 
     def game_finished(self):
         if self.player1.points == 15 or self.player2.points == 15:

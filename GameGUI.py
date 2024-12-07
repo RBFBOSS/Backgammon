@@ -1,4 +1,5 @@
 import tkinter as tk
+
 from Game import Game
 
 
@@ -8,9 +9,8 @@ class GameGUI:
         self.canvas = None
         self.root = root_input
         self.root.title("Backgammon Game")
-        self.game = Game('pvp')
+        self.game = game
         self.create_widgets()
-        self.Game = game
 
     def create_widgets(self):
         self.canvas = tk.Canvas(self.root, width=800, height=600)
