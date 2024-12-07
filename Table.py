@@ -6,16 +6,16 @@ class Table:
         self.captured_pieces = {1: 0, -1: 0}
 
     def prepare_table(self):
-        # self.positions[0] = -2
-        # self.positions[5] = 5
-        # self.positions[7] = 3
-        # self.positions[11] = -5
-        # self.positions[12] = 5
-        # self.positions[16] = -3
-        # self.positions[18] = -5
-        # self.positions[23] = 2
-        self.positions[0] = 1
-        self.positions[23] = -1
+        self.positions[0] = -2
+        self.positions[5] = 5
+        self.positions[7] = 3
+        self.positions[11] = -5
+        self.positions[12] = 5
+        self.positions[16] = -3
+        self.positions[18] = -5
+        self.positions[23] = 2
+        # self.positions[0] = 1
+        # self.positions[23] = -1
 
     def print_table(self):
         print('-----------------')
