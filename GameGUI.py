@@ -3,13 +3,14 @@ from Game import Game
 
 
 class GameGUI:
-    def __init__(self, root_input):
+    def __init__(self, root_input, game):
         self.roll_button = None
         self.canvas = None
         self.root = root_input
         self.root.title("Backgammon Game")
         self.game = Game('pvp')
         self.create_widgets()
+        self.Game = game
 
     def create_widgets(self):
         self.canvas = tk.Canvas(self.root, width=800, height=600)
@@ -32,10 +33,13 @@ class GameGUI:
         self.draw_pieces()
 
     def draw_delimiter_rectangle(self):
-        self.canvas.create_rectangle(11, 10, 650, 505, outline="brown", width=20, fill="light goldenrod")
+        self.canvas.create_rectangle(11, 10, 650, 505, outline="IndianRed4", width=20, fill="AntiqueWhite2")
+
+    def draw_delimiter_rectangle_border(self):
+        self.canvas.create_rectangle(21, 20, 640, 495, outline="black", width=2)
 
     def draw_delimiter_line(self):
-        self.canvas.create_polygon(321, 0, 340, 0, 340, 505, 321, 505, fill="brown")
+        self.canvas.create_polygon(321, 0, 340, 0, 340, 505, 321, 505, fill="IndianRed4")
 
     def draw_triangles(self):
         for i in range(6):
@@ -43,26 +47,38 @@ class GameGUI:
             y1 = 20
             x2 = (i + 1) * 50 + 20
             y2 = 195
-            color1 = "red" if i % 2 == 0 else "white"
-            color2 = "white" if i % 2 == 0 else "red"
+            color1 = "saddle brown" if i % 2 == 0 else "burlywood2"
+            color2 = "burlywood2" if i % 2 == 0 else "saddle brown"
             self.canvas.create_polygon(x1, y1, x2, y1, (x1 + x2) / 2, y2, fill=color1)
+            self.canvas.create_line(x1, y1, x2, y1, fill="black")
+            self.canvas.create_line(x1, y1, (x1 + x2) / 2, y2, fill="black")
+            self.canvas.create_line(x2, y1, (x1 + x2) / 2, y2, fill="black")
 
             y1 = 495
             y2 = 320
             self.canvas.create_polygon(x1, y1, x2, y1, (x1 + x2) / 2, y2, fill=color2)
+            self.canvas.create_line(x1, y1, x2, y1, fill="black")
+            self.canvas.create_line(x1, y1, (x1 + x2) / 2, y2, fill="black")
+            self.canvas.create_line(x2, y1, (x1 + x2) / 2, y2, fill="black")
 
         for i in range(6, 12):
             x1 = i * 50 + 40
             y1 = 20
             x2 = (i + 1) * 50 + 40
             y2 = 195
-            color1 = "red" if i % 2 == 0 else "white"
-            color2 = "white" if i % 2 == 0 else "red"
+            color1 = "saddle brown" if i % 2 == 0 else "burlywood2"
+            color2 = "burlywood2" if i % 2 == 0 else "saddle brown"
             self.canvas.create_polygon(x1, y1, x2, y1, (x1 + x2) / 2, y2, fill=color2)
+            self.canvas.create_line(x1, y1, x2, y1, fill="black")
+            self.canvas.create_line(x1, y1, (x1 + x2) / 2, y2, fill="black")
+            self.canvas.create_line(x2, y1, (x1 + x2) / 2, y2, fill="black")
 
             y1 = 495
             y2 = 320
             self.canvas.create_polygon(x1, y1, x2, y1, (x1 + x2) / 2, y2, fill=color1)
+            self.canvas.create_line(x1, y1, x2, y1, fill="black")
+            self.canvas.create_line(x1, y1, (x1 + x2) / 2, y2, fill="black")
+            self.canvas.create_line(x2, y1, (x1 + x2) / 2, y2, fill="black")
 
     def draw_pieces(self):
         positions = self.game.table.positions
@@ -81,6 +97,10 @@ class GameGUI:
                 continue
             color = "white" if pos > 0 else "black"
             count = abs(pos)
+            actual_count = 0
+            if count > 5:
+                actual_count = count
+                count = 5
             while count > 0:
                 self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, fill=color)
                 if i < 12:
@@ -88,10 +108,6 @@ class GameGUI:
                 else:
                     y -= 40
                 count -= 1
-            # self.canvas.create_text(x, y, text=str(abs(pos)))
+            if actual_count != 0:
+                self.canvas.create_text(x, y, text=str(actual_count), fill="red", font=("Arial", 12, "bold"))
 
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = GameGUI(root)
-    root.mainloop()
