@@ -6,14 +6,6 @@ class Table:
         self.captured_pieces = {1: 0, -1: 0}
 
     def prepare_table(self):
-        # self.positions[0] = -2
-        # self.positions[5] = 5
-        # self.positions[7] = 3
-        # self.positions[11] = -5
-        # self.positions[12] = 5
-        # self.positions[16] = -3
-        # self.positions[18] = -5
-        # self.positions[23] = 2
         self.positions[0] = -2
         self.positions[5] = 5
         self.positions[7] = 3
@@ -22,6 +14,14 @@ class Table:
         self.positions[16] = -3
         self.positions[18] = -5
         self.positions[23] = 2
+        # self.positions[0] = -2
+        # self.positions[5] = 5
+        # self.positions[7] = 3
+        # self.positions[11] = -5
+        # self.positions[12] = 5
+        # self.positions[16] = -3
+        # self.positions[18] = -5
+        # self.positions[23] = 2
 
     def print_table(self):
         print('-----------------')
@@ -32,15 +32,15 @@ class Table:
         print(second_row[:6], "|", second_row[6:])
 
     def move_piece(self, player, position, steps):
-        if not self.validate_move(player.color, position, steps):
+        if not self.validate_move(player.player_color, position, steps):
             print("Invalid move.")
             return False
-        if player.color == 1:
+        if player.player_color == 1:
             if self.captured_pieces[1] > 0:
                 self.captured_pieces[1] -= 1
                 self.positions[position - steps] += 1
             else:
-                if self.all_pieces_in_house(player.color) and position - steps < 0:
+                if self.all_pieces_in_house(player.player_color) and position - steps < 0:
                     player.points += 1
                     self.positions[position] -= 1
                 elif self.positions[position - steps] == -1:
@@ -55,10 +55,10 @@ class Table:
                 self.captured_pieces[-1] -= 1
                 self.positions[position + steps] -= 1
             else:
-                if self.all_pieces_in_house(player.color) and position + steps > 23:
+                if self.all_pieces_in_house(player.player_color) and position + steps > 23:
                     player.points += 1
-                    self.positions[position] -= 1
-                elif self.positions[position + steps] == 0:
+                    self.positions[position] += 1
+                elif self.positions[position + steps] == 1:
                     self.captured_pieces[1] += 1
                     self.positions[position + steps] = -1
                     print('captured piece')
