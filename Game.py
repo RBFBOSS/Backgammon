@@ -51,7 +51,7 @@ class Game:
         if dice_values[0] == dice_values[1]:
             for _ in range(4):
                 position = int(input(f"Select a position to move {dice_values[0]} steps: "))
-                while not self.table.move_piece(player.player_color, position, dice_values[0]):
+                while not self.table.move_piece(player, position, dice_values[0]):
                     position = int(input('Invalid move. Try again: '))
                 self.table.print_table()
         else:
@@ -61,7 +61,7 @@ class Game:
             moves = [dice_values[first_move], dice_values[1 - first_move]]
             for move in moves:
                 position = int(input(f"Select a position to move {move} steps: "))
-                while not self.table.move_piece(player.player_color, position, move):
+                while not self.table.move_piece(player, position, move):
                     position = int(input('Invalid move. Try again: '))
                 self.table.print_table()
 
