@@ -50,20 +50,28 @@ class Game:
             return
         if dice_values[0] == dice_values[1]:
             for _ in range(4):
+                if self.game_finished():
+                    return
                 position = int(input(f"Select a position to move {dice_values[0]} steps: "))
                 while not self.table.move_piece(player, position, dice_values[0]):
                     position = int(input('Invalid move. Try again: '))
                 self.table.print_table()
+                print(self.player1.points)
+                print(self.player2.points)
         else:
             first_move = int(input("Select which die to use first (0 or 1): "))
             while first_move not in [0, 1]:
                 first_move = int(input('Invalid die. Try again: '))
             moves = [dice_values[first_move], dice_values[1 - first_move]]
             for move in moves:
+                if self.game_finished():
+                    return
                 position = int(input(f"Select a position to move {move} steps: "))
                 while not self.table.move_piece(player, position, move):
                     position = int(input('Invalid move. Try again: '))
                 self.table.print_table()
+                print(self.player1.points)
+                print(self.player2.points)
 
     def player_can_move(self, player, dice_values):
         if player.player_color == 1:

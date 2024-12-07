@@ -6,14 +6,6 @@ class Table:
         self.captured_pieces = {1: 0, -1: 0}
 
     def prepare_table(self):
-        self.positions[0] = -2
-        self.positions[5] = 5
-        self.positions[7] = 3
-        self.positions[11] = -5
-        self.positions[12] = 5
-        self.positions[16] = -3
-        self.positions[18] = -5
-        self.positions[23] = 2
         # self.positions[0] = -2
         # self.positions[5] = 5
         # self.positions[7] = 3
@@ -22,6 +14,8 @@ class Table:
         # self.positions[16] = -3
         # self.positions[18] = -5
         # self.positions[23] = 2
+        self.positions[0] = 1
+        self.positions[23] = -1
 
     def print_table(self):
         print('-----------------')
@@ -75,11 +69,11 @@ class Table:
                     return False
                 if self.positions[position - steps] < -1:
                     return False
-            elif self.positions[position] <= 0 \
-                    or self.positions[position - steps] < -1:
+            elif self.positions[position] <= 0:
                 return False
             elif not self.all_pieces_in_house(player) \
                     and position - steps < 0:
+                print('not all pieces in house')
                 return False
         else:
             if self.captured_pieces[-1] > 0:
@@ -87,11 +81,11 @@ class Table:
                     return False
                 if self.positions[position + steps] > 1:
                     return False
-            elif self.positions[position] >= 0 \
-                    or self.positions[position + steps] > 1:
+            elif self.positions[position] >= 0:
                 return False
             elif not self.all_pieces_in_house(player) \
                     and position + steps > 23:
+                print('not all pieces in house')
                 return False
         return True
 
@@ -99,4 +93,4 @@ class Table:
         if player == 1:
             return all([self.positions[i] <= 0 for i in range(6, 24)])
         else:
-            return all([self.positions[i] <= 0 for i in range(0, 18)])
+            return all([self.positions[i] >= 0 for i in range(0, 18)])
