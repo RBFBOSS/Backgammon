@@ -15,19 +15,13 @@ class Game:
         self.table = Table()
         self.table.prepare_table()
 
-    def start_game(self):
+    def pick_starting_player(self):
         self.dice.roll_dice()
         if self.dice.values[0] >= self.dice.values[1]:
             first_player = 1
         else:
             first_player = 2
-        while not self.game_finished():
-            if first_player == 1:
-                self.player_turn(self.player1)
-                self.player_turn(self.player2)
-            else:
-                self.player_turn(self.player2)
-                self.player_turn(self.player1)
+        return first_player
 
     def game_finished(self):
         if self.player1.points == 15 or self.player2.points == 15:

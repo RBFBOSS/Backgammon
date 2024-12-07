@@ -1,23 +1,33 @@
+from PIL import Image, ImageTk
 import tkinter as tk
-
 from Game import Game
-
 
 class GameGUI:
     def __init__(self, root_input, game):
+        self.dice_images = []
+        self.player2_label = None
+        self.player1_label = None
         self.roll_button = None
         self.canvas = None
         self.root = root_input
         self.root.title("Backgammon Game")
         self.game = game
+        first_player = game.pick_starting_player()
         self.create_widgets()
+        print(f"Player {first_player} starts the game")
 
     def create_widgets(self):
-        self.canvas = tk.Canvas(self.root, width=800, height=600)
+        self.canvas = tk.Canvas(self.root, width=658, height=600)
         self.canvas.pack()
 
         self.roll_button = tk.Button(self.root, text="Roll Dice", command=self.roll_dice)
         self.roll_button.pack()
+
+        self.player1_label = tk.Label(self.root, text=f"{self.game.player1.name} (Black)", font=("Arial", 14, "bold"))
+        self.player1_label.place(x=99, y=520)
+
+        self.player2_label = tk.Label(self.root, text=f"{self.game.player2.name} (White)", font=("Arial", 14, "bold"))
+        self.player2_label.place(x=422, y=520)
 
         self.update_table()
 
@@ -31,12 +41,26 @@ class GameGUI:
         self.draw_triangles()
         self.draw_delimiter_line()
         self.draw_pieces()
+        self.draw_dice()
+
+    def draw_dice(self):
+        dice_values = self.game.dice.values
+        x = 460
+        y = 260
+        self.dice_images = []  # Clear previous images
+        for i, value in enumerate(dice_values):
+            self.load_dice_image(value)
+            self.canvas.create_image(x + i*60, y, image=self.dice_images[-1])
+
+    def load_dice_image(self, value):
+        image_path = f'images/dice{value}.png'
+        image = Image.open(image_path)
+        # resized_image = image.resize((50, 50))
+        dice_image = ImageTk.PhotoImage(image)
+        self.dice_images.append(dice_image)
 
     def draw_delimiter_rectangle(self):
         self.canvas.create_rectangle(11, 10, 650, 505, outline="IndianRed4", width=20, fill="AntiqueWhite2")
-
-    def draw_delimiter_rectangle_border(self):
-        self.canvas.create_rectangle(21, 20, 640, 495, outline="black", width=2)
 
     def draw_delimiter_line(self):
         self.canvas.create_polygon(321, 0, 340, 0, 340, 505, 321, 505, fill="IndianRed4")
@@ -110,4 +134,3 @@ class GameGUI:
                 count -= 1
             if actual_count != 0:
                 self.canvas.create_text(x, y, text=str(actual_count), fill="red", font=("Arial", 12, "bold"))
-
