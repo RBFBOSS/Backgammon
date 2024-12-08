@@ -1,10 +1,12 @@
 from PIL import Image, ImageTk
 import tkinter as tk
-from Game import Game
+
 
 class GameGUI:
     def __init__(self, root_input, game):
+        self.available_moves = None
         self.dice_images = []
+        self.dice_labels = []
         self.player2_label = None
         self.player1_label = None
         self.roll_button = None
@@ -14,14 +16,16 @@ class GameGUI:
         self.game = game
         first_player = game.pick_starting_player()
         self.create_widgets()
+        self.current_player = first_player
         print(f"Player {first_player} starts the game")
 
     def create_widgets(self):
         self.canvas = tk.Canvas(self.root, width=658, height=600)
         self.canvas.pack()
+        self.canvas.bind("<Button-1>", self.clicked_screen)
 
         self.roll_button = tk.Button(self.root, text="Roll Dice", command=self.roll_dice)
-        self.roll_button.pack()
+        self.roll_button.place(x=300, y=550)
 
         self.player1_label = tk.Label(self.root, text=f"{self.game.player1.name} (Black)", font=("Arial", 14, "bold"))
         self.player1_label.place(x=99, y=520)
@@ -31,7 +35,43 @@ class GameGUI:
 
         self.update_table()
 
+    def clicked_screen(self, event):
+        print(f"Clicked at x={event.x}, y={event.y}")
+        if 300 < event.x < 350 and 550 < event.y < 570:
+            self.roll_dice()
+            return
+        triangle_clicked = -1
+        for i in range(6):
+            x1 = i * 50 + 20
+            x2 = (i + 1) * 50 + 20
+            if 20 < event.y < 257:
+                if x1 < event.x < x2:
+                    triangle_clicked = i
+                    break
+                x1 = (i + 6) * 50 + 40
+                x2 = (i + 7) * 50 + 40
+                if x1 < event.x < x2:
+                    triangle_clicked = i + 6
+                    break
+            elif 257 < event.y < 495:
+                if x1 < event.x < x2:
+                    triangle_clicked = 23 - i
+                    break
+                x1 = (i + 6) * 50 + 40
+                x2 = (i + 7) * 50 + 40
+                if x1 < event.x < x2:
+                    triangle_clicked = 17 - i
+                    break
+        if triangle_clicked == -1:
+            return
+        self.available_moves = self.game.for_position_display_available_moves(self.current_player,
+                                                                         triangle_clicked,
+                                                                         self.game.dice.values)
+        if self.available_moves:
+            self.update_table()
+
     def roll_dice(self):
+        print("Rolling dice")
         self.game.dice.roll_dice()
         self.update_table()
 
@@ -41,6 +81,8 @@ class GameGUI:
         self.draw_triangles()
         self.draw_delimiter_line()
         self.draw_pieces()
+        if self.available_moves:
+            self.draw_available_moves(self.available_moves, -1)
         self.draw_dice()
 
     def draw_dice(self):
@@ -50,12 +92,11 @@ class GameGUI:
         self.dice_images = []  # Clear previous images
         for i, value in enumerate(dice_values):
             self.load_dice_image(value)
-            self.canvas.create_image(x + i*60, y, image=self.dice_images[-1])
+            self.canvas.create_image(x + i * 60, y, image=self.dice_images[-1])
 
     def load_dice_image(self, value):
         image_path = f'images/dice{value}.png'
         image = Image.open(image_path)
-        # resized_image = image.resize((50, 50))
         dice_image = ImageTk.PhotoImage(image)
         self.dice_images.append(dice_image)
 
@@ -134,3 +175,21 @@ class GameGUI:
                 count -= 1
             if actual_count != 0:
                 self.canvas.create_text(x, y, text=str(actual_count), fill="red", font=("Arial", 12, "bold"))
+
+    def draw_available_moves(self, available_moves, triangle_clicked):
+        positions = self.game.table.positions
+        for move in available_moves:
+            if move < 12:
+                if move > 5:
+                    x = (move % 12) * 50 + 65
+                else:
+                    x = (move % 12) * 50 + 45
+                y = 42 + 40 * min(abs(positions[move]), 5)
+            else:
+                if move < 18:
+                    x = (11 - (move % 12)) * 50 + 65
+                else:
+                    x = (11 - (move % 12)) * 50 + 45
+                y = 473 - 40 * min(abs(positions[move]), 5)
+            self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, fill="gray")
+
