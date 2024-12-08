@@ -4,7 +4,9 @@ import tkinter as tk
 
 class GameGUI:
     def __init__(self, root_input, game):
+        self.selected_position = None
         self.available_moves = None
+        self.available_moves_shown = False
         self.dice_images = []
         self.dice_labels = []
         self.player2_label = None
@@ -63,11 +65,25 @@ class GameGUI:
                     triangle_clicked = 17 - i
                     break
         if triangle_clicked == -1:
+            self.available_moves_shown = False
             return
+        if self.available_moves_shown:
+            if triangle_clicked in self.available_moves:
+                player = self.game.player1 if self.current_player == 1 else self.game.player2
+                self.game.table.move_piece(player, self.selected_position,
+                                           abs(triangle_clicked - self.selected_position))
+                self.current_player = 3 - self.current_player
+                self.available_moves_shown = False
+                self.available_moves = None
+                self.roll_dice()
+                self.update_table()
+                return
+        self.selected_position = triangle_clicked
         self.available_moves = self.game.for_position_display_available_moves(self.current_player,
-                                                                         triangle_clicked,
-                                                                         self.game.dice.values)
+                                                                              triangle_clicked,
+                                                                              self.game.dice.values)
         if self.available_moves:
+            self.available_moves_shown = True
             self.update_table()
 
     def roll_dice(self):
@@ -192,4 +208,3 @@ class GameGUI:
                     x = (11 - (move % 12)) * 50 + 45
                 y = 473 - 40 * min(abs(positions[move]), 5)
             self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, fill="gray")
-
