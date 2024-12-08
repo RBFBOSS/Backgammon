@@ -4,6 +4,7 @@ import tkinter as tk
 
 class GameGUI:
     def __init__(self, root_input, game):
+        self.dice_to_do = []
         self.captured_black = None
         self.captured_white = None
         self.selected_position = None
@@ -18,12 +19,12 @@ class GameGUI:
         self.root = root_input
         self.root.title("Backgammon Game")
         self.game = game
-        self.game.table.captured_pieces[-1] = 1
-        self.game.table.captured_pieces[1] = 1
         first_player = game.pick_starting_player()
         self.create_widgets()
         self.current_player = first_player
         print(f"Player {first_player} starts the game")
+        self.roll_dice()
+        self.update_table()
 
     def create_widgets(self):
         self.canvas = tk.Canvas(self.root, width=658, height=600)
@@ -80,31 +81,44 @@ class GameGUI:
                     if x1 < event.x < x2:
                         triangle_clicked = 17 - i
                         break
-        if triangle_clicked == -10:
-            self.available_moves_shown = False
-            return
         if self.available_moves_shown:
             if triangle_clicked in self.available_moves:
                 player = self.game.player1 if self.current_player == 1 else self.game.player2
-                self.game.table.move_piece(player, self.selected_position,
-                                           abs(triangle_clicked - self.selected_position))
-                self.current_player = 3 - self.current_player
+                moves_made = self.eliminate_dice_from_dice_to_be_played(abs(triangle_clicked - self.selected_position))
+                for move in moves_made:
+                    print(f"Moving piece {player.player_color} from {self.selected_position} to "
+                          f"{self.selected_position + move}")
+                    self.game.table.move_piece(player, self.selected_position,
+                                               move)
+                    if player.player_color == 1:
+                        self.selected_position -= move
+                    else:
+                        self.selected_position += move
                 self.available_moves_shown = False
                 self.available_moves = None
-                self.roll_dice()
                 self.update_table()
+                if not self.dice_to_do:
+                    self.current_player = 3 - self.current_player
+                    self.roll_dice()
                 return
         self.selected_position = triangle_clicked
         self.available_moves = self.game.for_position_display_available_moves(self.current_player,
                                                                               triangle_clicked,
-                                                                              self.game.dice.values)
+                                                                              self.dice_to_do)
         if self.available_moves:
             self.available_moves_shown = True
+            self.update_table()
+        else:
+            self.available_moves_shown = False
             self.update_table()
 
     def roll_dice(self):
         print("Rolling dice")
         self.game.dice.roll_dice()
+        self.dice_to_do = self.game.dice.values.copy()
+        if self.game.dice.values[0] == self.game.dice.values[1]:
+            self.dice_to_do.extend(self.game.dice.values)
+        print(f"Dice to do: {self.dice_to_do}")
         self.update_table()
 
     def update_table(self):
@@ -118,13 +132,25 @@ class GameGUI:
         self.draw_dice()
 
     def draw_dice(self):
-        dice_values = self.game.dice.values
+        dice_values = self.dice_to_do
         x = 460
         y = 260
         self.dice_images = []  # Clear previous images
-        for i, value in enumerate(dice_values):
-            self.load_dice_image(value)
-            self.canvas.create_image(x + i * 60, y, image=self.dice_images[-1])
+        if len(dice_values) == 3:
+            for i, value in enumerate(dice_values):
+                print(f"Drawing dice {i}, {value}")
+                self.load_dice_image(value)
+                self.canvas.create_image(x + i * 60 - 30, y, image=self.dice_images[-1])
+        elif len(dice_values) == 4:
+            for i, value in enumerate(dice_values):
+                print(f"Drawing dice {i}, {value}")
+                self.load_dice_image(value)
+                self.canvas.create_image(x + i * 60 - 60, y, image=self.dice_images[-1])
+        else:
+            for i, value in enumerate(dice_values):
+                print(f"Drawing dice {i}, {value}")
+                self.load_dice_image(value)
+                self.canvas.create_image(x + i * 60, y, image=self.dice_images[-1])
 
     def load_dice_image(self, value):
         image_path = f'images/dice{value}.png'
@@ -163,8 +189,8 @@ class GameGUI:
             y1 = 20
             x2 = (i + 1) * 50 + 40
             y2 = 195
-            color1 = "saddle brown" if i % 2 == 0 else "burlywood2"
-            color2 = "burlywood2" if i % 2 == 0 else "saddle brown"
+            color2 = "saddle brown" if i % 2 == 0 else "burlywood2"
+            color1 = "burlywood2" if i % 2 == 0 else "saddle brown"
             self.canvas.create_polygon(x1, y1, x2, y1, (x1 + x2) / 2, y2, fill=color2)
             self.canvas.create_line(x1, y1, x2, y1, fill="black")
             self.canvas.create_line(x1, y1, (x1 + x2) / 2, y2, fill="black")
@@ -234,3 +260,42 @@ class GameGUI:
                     x = (11 - (move % 12)) * 50 + 45
                 y = 473 - 40 * min(abs(positions[move]), 5)
             self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, fill="gray")
+
+    def eliminate_dice_from_dice_to_be_played(self, value):
+        moves_made = []
+        print(self.dice_to_do)
+        if value in self.dice_to_do:
+            self.dice_to_do.remove(value)
+            moves_made.append(value)
+            return moves_made
+        if value == self.dice_to_do[0] + self.dice_to_do[1]:
+            if self.current_player == 1:
+                if self.selected_position + self.dice_to_do[0] in self.available_moves:
+                    moves_made.append(self.dice_to_do[0])
+                    moves_made.append(self.dice_to_do[1])
+                else:
+                    moves_made.append(self.dice_to_do[1])
+                    moves_made.append(self.dice_to_do[0])
+            else:
+                if self.selected_position - self.dice_to_do[0] in self.available_moves:
+                    moves_made.append(self.dice_to_do[0])
+                    moves_made.append(self.dice_to_do[1])
+                else:
+                    moves_made.append(self.dice_to_do[1])
+                    moves_made.append(self.dice_to_do[0])
+            self.dice_to_do.remove(self.dice_to_do[1])
+            self.dice_to_do.remove(self.dice_to_do[0])
+            return moves_made
+        if value == self.dice_to_do[0] * 3:
+            moves_made.append(self.dice_to_do[0])
+            moves_made.append(self.dice_to_do[0])
+            moves_made.append(self.dice_to_do[0])
+            self.dice_to_do = [self.dice_to_do[0]]
+            return moves_made
+        if value == self.dice_to_do[0] * 4:
+            moves_made.append(self.dice_to_do[0])
+            moves_made.append(self.dice_to_do[0])
+            moves_made.append(self.dice_to_do[0])
+            moves_made.append(self.dice_to_do[0])
+            self.dice_to_do = []
+            return moves_made

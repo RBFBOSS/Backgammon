@@ -45,88 +45,51 @@ class Game:
         dice1_ok = False
         dice2_ok = False
         dice3_ok = False
+        dice4_ok = False
         if player_color == 1:
-            if self.table.captured_pieces[player_color] > 0:
-                if self.table.validate_move(player_color, 24, dice_values[0]):
-                    dice1_ok = True
-                    available_moves.append(24 - dice_values[0])
-                if dice_values[0] == dice_values[1]:
-                    if dice1_ok and self.table.validate_move(player_color, 24, dice_values[0] * 2):
-                        dice2_ok = True
-                        available_moves.append(24 - dice_values[1] * 2)
-                    if dice2_ok and self.table.validate_move(player_color, 24, dice_values[0] * 3):
-                        dice3_ok = True
-                        available_moves.append(24 - dice_values[1] * 3)
-                    if dice3_ok and self.table.validate_move(player_color, 24, dice_values[0] * 4):
-                        available_moves.append(24 - dice_values[0] * 4)
-                else:
-                    if self.table.validate_move(player_color, 24, dice_values[1]):
-                        dice2_ok = True
-                        available_moves.append(24 - dice_values[1])
-                    if (dice1_ok or dice2_ok) \
-                            and self.table.validate_move(player_color, 24, dice_values[0] + dice_values[1]):
-                        available_moves.append(24 - dice_values[0] - dice_values[1])
-            else:
-                if self.table.validate_move(player_color, position, dice_values[0]):
-                    dice1_ok = True
-                    available_moves.append(position - dice_values[0])
-                if dice_values[0] == dice_values[1]:
-                    if dice1_ok and self.table.validate_move(player_color, position, dice_values[0] * 2):
-                        dice2_ok = True
-                        available_moves.append(position - dice_values[1] * 2)
-                    if dice2_ok and self.table.validate_move(player_color, position, dice_values[0] * 3):
-                        dice3_ok = True
-                        available_moves.append(position - dice_values[1] * 3)
-                    if dice3_ok and self.table.validate_move(player_color, position, dice_values[0] * 4):
-                        available_moves.append(position - dice_values[0] * 4)
-                else:
-                    if self.table.validate_move(player_color, position, dice_values[1]):
-                        dice2_ok = True
-                        available_moves.append(position - dice_values[1])
-                    if (dice1_ok or dice2_ok) \
-                            and self.table.validate_move(player_color, position, dice_values[0] + dice_values[1]):
-                        available_moves.append(position - dice_values[0] - dice_values[1])
+            if self.table.validate_move(player_color, position, dice_values[0]):
+                dice1_ok = True
+                available_moves.append(position - dice_values[0])
+            if len(dice_values) == 1:
+                return available_moves
+            if self.table.validate_move(player_color, position, dice_values[1]):
+                dice2_ok = True
+                available_moves.append(position - dice_values[1])
+            if (dice1_ok or dice2_ok) \
+                    and self.table.validate_move(player_color, position, dice_values[0] + dice_values[1]):
+                available_moves.append(position - dice_values[0] - dice_values[1])
+                dice3_ok = True
+            if len(dice_values) == 2:
+                return available_moves
+            if dice3_ok and self.table.validate_move(player_color, position, dice_values[0] * 3):
+                available_moves.append(position - dice_values[0] * 3)
+                dice4_ok = True
+            if len(dice_values) == 3:
+                return available_moves
+            if dice4_ok and self.table.validate_move(player_color, position, dice_values[0] * 4):
+                available_moves.append(position - dice_values[0] * 4)
         else:
-            if self.table.captured_pieces[player_color] > 0:
-                if self.table.validate_move(player_color, -1, dice_values[0]):
-                    dice1_ok = True
-                    available_moves.append(dice_values[0] - 1)
-                if dice_values[0] == dice_values[1]:
-                    if dice1_ok and self.table.validate_move(player_color, -1, dice_values[0] * 2):
-                        dice2_ok = True
-                        available_moves.append(dice_values[1] * 2 - 1)
-                    if dice2_ok and self.table.validate_move(player_color, -1, dice_values[0] * 3):
-                        dice3_ok = True
-                        available_moves.append(dice_values[1] * 3 - 1)
-                    if dice3_ok and self.table.validate_move(player_color, -1, dice_values[0] * 4):
-                        available_moves.append(dice_values[0] * 4 - 1)
-                else:
-                    if self.table.validate_move(player_color, -1, dice_values[1]):
-                        dice2_ok = True
-                        available_moves.append(dice_values[1] - 1)
-                    if (dice1_ok or dice2_ok) \
-                            and self.table.validate_move(player_color, -1, dice_values[0] + dice_values[1]):
-                        available_moves.append(dice_values[0] + dice_values[1] - 1)
-            else:
-                if self.table.validate_move(player_color, position, dice_values[0]):
-                    dice1_ok = True
-                    available_moves.append(position + dice_values[0])
-                if dice_values[0] == dice_values[1]:
-                    if dice1_ok and self.table.validate_move(player_color, position, dice_values[0] * 2):
-                        dice2_ok = True
-                        available_moves.append(position + dice_values[1] * 2)
-                    if dice2_ok and self.table.validate_move(player_color, position, dice_values[0] * 3):
-                        dice3_ok = True
-                        available_moves.append(position + dice_values[1] * 3)
-                    if dice3_ok and self.table.validate_move(player_color, position, dice_values[0] * 4):
-                        available_moves.append(position + dice_values[0] * 4)
-                else:
-                    if self.table.validate_move(player_color, position, dice_values[1]):
-                        dice2_ok = True
-                        available_moves.append(position + dice_values[1])
-                    if (dice1_ok or dice2_ok) \
-                            and self.table.validate_move(player_color, position, dice_values[0] + dice_values[1]):
-                        available_moves.append(position + dice_values[0] + dice_values[1])
+            if self.table.validate_move(player_color, position, dice_values[0]):
+                dice1_ok = True
+                available_moves.append(position + dice_values[0])
+            if len(dice_values) == 1:
+                return available_moves
+            if self.table.validate_move(player_color, position, dice_values[1]):
+                dice2_ok = True
+                available_moves.append(position + dice_values[1])
+            if (dice1_ok or dice2_ok) \
+                    and self.table.validate_move(player_color, position, dice_values[0] + dice_values[1]):
+                available_moves.append(position + dice_values[0] + dice_values[1])
+                dice3_ok = True
+            if len(dice_values) == 2:
+                return available_moves
+            if dice3_ok and self.table.validate_move(player_color, position, dice_values[0] * 3):
+                available_moves.append(position + dice_values[0] * 3)
+                dice4_ok = True
+            if len(dice_values) == 3:
+                return available_moves
+            if dice4_ok and self.table.validate_move(player_color, position, dice_values[0] * 4):
+                available_moves.append(position + dice_values[0] * 4)
         print(available_moves)
         return available_moves
 

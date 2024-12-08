@@ -32,7 +32,12 @@ class Table:
         if player.player_color == 1:
             if self.captured_pieces[1] > 0:
                 self.captured_pieces[1] -= 1
-                self.positions[position - steps] += 1
+                if self.positions[position - steps] == -1:
+                    self.captured_pieces[-1] += 1
+                    self.positions[position - steps] = 1
+                    print('captured piece')
+                else:
+                    self.positions[position - steps] += 1
             else:
                 if self.all_pieces_in_house(player.player_color) and position - steps < 0:
                     player.points += 1
@@ -47,7 +52,12 @@ class Table:
         else:
             if self.captured_pieces[-1] > 0:
                 self.captured_pieces[-1] -= 1
-                self.positions[position + steps] -= 1
+                if self.positions[position + steps] == 1:
+                    self.captured_pieces[1] += 1
+                    self.positions[position + steps] = -1
+                    print('captured piece')
+                else:
+                    self.positions[position + steps] -= 1
             else:
                 if self.all_pieces_in_house(player.player_color) and position + steps > 23:
                     player.points += 1
@@ -69,28 +79,34 @@ class Table:
                     return False
                 if self.positions[position - steps] < -1:
                     return False
-            elif self.positions[position] <= 0:
-                return False
-            elif not self.all_pieces_in_house(player) \
-                    and position - steps < 0:
-                print('not all pieces in house')
-                return False
-            elif self.positions[position - steps] < -1:
-                return False
+            else:
+                if position == 24:
+                    return False
+                if self.positions[position] <= 0:
+                    return False
+                if not self.all_pieces_in_house(player) \
+                        and position - steps < 0:
+                    print('not all pieces in house')
+                    return False
+                if self.positions[position - steps] < -1:
+                    return False
         else:
             if self.captured_pieces[-1] > 0:
                 if position != -1:
                     return False
                 if self.positions[position + steps] > 1:
                     return False
-            elif self.positions[position] >= 0:
-                return False
-            elif not self.all_pieces_in_house(player) \
-                    and position + steps > 23:
-                print('not all pieces in house')
-                return False
-            elif self.positions[position + steps] > 1:
-                return False
+            else:
+                if position == -1:
+                    return False
+                if self.positions[position] >= 0:
+                    return False
+                if not self.all_pieces_in_house(player) \
+                        and position + steps > 23:
+                    print('not all pieces in house')
+                    return False
+                if self.positions[position + steps] > 1:
+                    return False
         return True
 
     def all_pieces_in_house(self, player):
