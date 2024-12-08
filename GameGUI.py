@@ -4,6 +4,8 @@ import tkinter as tk
 
 class GameGUI:
     def __init__(self, root_input, game):
+        self.captured_black = None
+        self.captured_white = None
         self.selected_position = None
         self.available_moves = None
         self.available_moves_shown = False
@@ -16,6 +18,8 @@ class GameGUI:
         self.root = root_input
         self.root.title("Backgammon Game")
         self.game = game
+        self.game.table.captured_pieces[-1] = 1
+        self.game.table.captured_pieces[1] = 1
         first_player = game.pick_starting_player()
         self.create_widgets()
         self.current_player = first_player
@@ -42,29 +46,41 @@ class GameGUI:
         if 300 < event.x < 350 and 550 < event.y < 570:
             self.roll_dice()
             return
-        triangle_clicked = -1
-        for i in range(6):
-            x1 = i * 50 + 20
-            x2 = (i + 1) * 50 + 20
-            if 20 < event.y < 257:
-                if x1 < event.x < x2:
-                    triangle_clicked = i
-                    break
-                x1 = (i + 6) * 50 + 40
-                x2 = (i + 7) * 50 + 40
-                if x1 < event.x < x2:
-                    triangle_clicked = i + 6
-                    break
-            elif 257 < event.y < 495:
-                if x1 < event.x < x2:
-                    triangle_clicked = 23 - i
-                    break
-                x1 = (i + 6) * 50 + 40
-                x2 = (i + 7) * 50 + 40
-                if x1 < event.x < x2:
-                    triangle_clicked = 17 - i
-                    break
-        if triangle_clicked == -1:
+
+        triangle_clicked = -10
+
+        self.captured_black = self.game.table.captured_pieces[-1]
+        self.captured_white = self.game.table.captured_pieces[1]
+
+        if self.captured_black > 0 and 310 < event.x < 350 and 215 < event.y < 255:
+            print("Clicked on captured black piece")
+            triangle_clicked = -1
+        elif self.captured_white > 0 and 310 < event.x < 350 and 255 < event.y < 295:
+            print("Clicked on captured white piece")
+            triangle_clicked = 24
+        else:
+            for i in range(6):
+                x1 = i * 50 + 20
+                x2 = (i + 1) * 50 + 20
+                if 20 < event.y < 257:
+                    if x1 < event.x < x2:
+                        triangle_clicked = i
+                        break
+                    x1 = (i + 6) * 50 + 40
+                    x2 = (i + 7) * 50 + 40
+                    if x1 < event.x < x2:
+                        triangle_clicked = i + 6
+                        break
+                elif 257 < event.y < 495:
+                    if x1 < event.x < x2:
+                        triangle_clicked = 23 - i
+                        break
+                    x1 = (i + 6) * 50 + 40
+                    x2 = (i + 7) * 50 + 40
+                    if x1 < event.x < x2:
+                        triangle_clicked = 17 - i
+                        break
+        if triangle_clicked == -10:
             self.available_moves_shown = False
             return
         if self.available_moves_shown:
@@ -191,6 +207,16 @@ class GameGUI:
                 count -= 1
             if actual_count != 0:
                 self.canvas.create_text(x, y, text=str(actual_count), fill="red", font=("Arial", 12, "bold"))
+
+        # Draw captured pieces
+        self.captured_black = self.game.table.captured_pieces[-1]
+        self.captured_white = self.game.table.captured_pieces[1]
+        if self.captured_black > 0:
+            self.canvas.create_oval(310, 215, 350, 255, fill="black")
+            self.canvas.create_text(330, 235, text=str(self.captured_black), fill="red", font=("Arial", 12, "bold"))
+        if self.captured_white > 0:
+            self.canvas.create_oval(310, 255, 350, 295, fill="white")
+            self.canvas.create_text(330, 275, text=str(self.captured_white), fill="red", font=("Arial", 12, "bold"))
 
     def draw_available_moves(self, available_moves):
         positions = self.game.table.positions

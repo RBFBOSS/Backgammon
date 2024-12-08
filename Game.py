@@ -66,7 +66,6 @@ class Game:
                     if (dice1_ok or dice2_ok) \
                             and self.table.validate_move(player_color, 24, dice_values[0] + dice_values[1]):
                         available_moves.append(24 - dice_values[0] - dice_values[1])
-                    return False
             else:
                 if self.table.validate_move(player_color, position, dice_values[0]):
                     dice1_ok = True
@@ -108,7 +107,6 @@ class Game:
                     if (dice1_ok or dice2_ok) \
                             and self.table.validate_move(player_color, -1, dice_values[0] + dice_values[1]):
                         available_moves.append(dice_values[0] + dice_values[1] - 1)
-                    return False
             else:
                 if self.table.validate_move(player_color, position, dice_values[0]):
                     dice1_ok = True
@@ -185,7 +183,3 @@ class Game:
                         if self.table.validate_move(player.player_color, i, value):
                             return True
                 return False
-
-# To do: Implement point winning and game ending conditions
-# To do: Implement AI player
-# To do: Graphical interface
