@@ -82,7 +82,7 @@ class GameGUI:
         self.draw_delimiter_line()
         self.draw_pieces()
         if self.available_moves:
-            self.draw_available_moves(self.available_moves, -1)
+            self.draw_available_moves(self.available_moves)
         self.draw_dice()
 
     def draw_dice(self):
@@ -176,7 +176,7 @@ class GameGUI:
             if actual_count != 0:
                 self.canvas.create_text(x, y, text=str(actual_count), fill="red", font=("Arial", 12, "bold"))
 
-    def draw_available_moves(self, available_moves, triangle_clicked):
+    def draw_available_moves(self, available_moves):
         positions = self.game.table.positions
         for move in available_moves:
             if move < 12:
