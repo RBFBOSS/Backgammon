@@ -94,7 +94,7 @@ class Game:
         return available_moves
 
     def make_move(self, player, dice_values):
-        if not self.player_can_move(player, dice_values):
+        if not self.player_can_move(player.player_color, dice_values):
             return
         if dice_values[0] == dice_values[1]:
             for _ in range(4):
@@ -121,28 +121,9 @@ class Game:
                 print(self.player1.points)
                 print(self.player2.points)
 
-    def player_can_move(self, player, dice_values):
-        if player.player_color == 1:
-            if self.table.captured_pieces[player.player_color] > 0:
-                if self.table.validate_move(player.player_color, 24, dice_values[0])\
-                        or self.table.validate_move(player.player_color, 24, dice_values[1]):
+    def player_can_move(self, player_color, dice_values):
+        for value in dice_values:
+            for i in range(-1, 25):
+                if self.table.validate_move(player_color, i, value):
                     return True
-                return False
-            else:
-                for value in dice_values:
-                    for i in range(24):
-                        if self.table.validate_move(player.player_color, i, value):
-                            return True
-                return False
-        else:
-            if self.table.captured_pieces[player.player_color] > 0:
-                if self.table.validate_move(player.player_color, -1, dice_values[0]) \
-                        or self.table.validate_move(player.player_color, -1, dice_values[1]):
-                    return True
-                return False
-            else:
-                for value in dice_values:
-                    for i in range(24):
-                        if self.table.validate_move(player.player_color, i, value):
-                            return True
-                return False
+            return False

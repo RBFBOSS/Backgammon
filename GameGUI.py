@@ -1,3 +1,6 @@
+import sys
+from time import sleep
+
 from PIL import Image, ImageTk
 import tkinter as tk
 
@@ -43,6 +46,14 @@ class GameGUI:
         self.update_table()
 
     def clicked_screen(self, event):
+        current_player_color = 1 if self.current_player == 2 else -1
+        if self.game.game_finished():
+            sys.exit()
+        if not self.game.player_can_move(current_player_color, self.dice_to_do):
+            self.current_player = 3 - self.current_player
+            self.roll_dice()
+            self.update_table()
+            return
         if 300 < event.x < 350 and 550 < event.y < 570:
             self.roll_dice()
             return
@@ -94,8 +105,6 @@ class GameGUI:
                 player = self.game.player1 if self.current_player == 1 else self.game.player2
                 moves_made = self.eliminate_dice_from_dice_to_be_played(abs(triangle_clicked - self.selected_position))
                 for move in moves_made:
-                    print(f"Moving piece {player.player_color} from {self.selected_position} to "
-                          f"{self.selected_position + move}")
                     self.game.table.move_piece(player, self.selected_position,
                                                move)
                     if player.player_color == 1:
@@ -104,6 +113,10 @@ class GameGUI:
                         self.selected_position += move
                 self.available_moves_shown = False
                 self.available_moves = None
+                if self.game.game_finished():
+                    print(f"Game finished. Winner: {player.name}")
+                    self.update_table()
+                    return
                 self.update_table()
                 if not self.dice_to_do:
                     self.current_player = 3 - self.current_player
@@ -136,6 +149,20 @@ class GameGUI:
             self.player1_label.config(font=("Arial", 14))
             self.player2_label.config(font=("Arial", 14, "bold", "underline"))
 
+    def draw_game_finished(self):
+        x, y = 330, 250
+        text = "Game Finished"
+        font = ("Arial", 34, "bold")
+        outline_color = "black"
+        fill_color = "red"
+
+        # Draw outline
+        for dx, dy in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            self.canvas.create_text(x + dx, y + dy, text=text, font=font, fill=outline_color)
+
+        # Draw main text
+        self.canvas.create_text(x, y, text=text, font=font, fill=fill_color)
+
     def update_table(self):
         self.canvas.delete("all")
         self.draw_delimiter_rectangle()
@@ -146,6 +173,9 @@ class GameGUI:
             self.draw_available_moves(self.available_moves)
         self.draw_dice()
         self.draw_current_player()
+        if self.game.game_finished():
+            self.roll_button.config(state="disabled")
+            self.draw_game_finished()
 
     def draw_dice(self):
         dice_values = self.dice_to_do
@@ -281,44 +311,112 @@ class GameGUI:
                     y = 473 - 40 * min(abs(positions[move]), 5)
             self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, fill="gray")
 
-    def max_piece_for_player(self, player):
-        player_color = 1 if player == 2 else -1
-        if not self.game.table.all_pieces_in_house(player_color):
-            raise Exception("All pieces are not in house")
-        max_piece = 0
-        if player_color == 1:
-            for i in range(5):
-                if self.game.table.positions[i] * player_color > 0:
-                    max_piece = i
-        else:
-            for i in range(18, 23):
-                if self.game.table.positions[i] * player_color > 0:
-                    max_piece = i
-                    break
-        return max_piece
-
     def eliminate_dice_from_dice_to_be_played(self, value):
         moves_made = []
-        print(f'Dice to do: {self.dice_to_do}, value: {value}, '
+        current_player = 1 if self.current_player == 2 else -1
+        max_piece = self.game.table.max_piece_for_player(current_player)
+        print(f'Current player: {current_player}'
+              f'Dice to do: {self.dice_to_do}, value: {value}, '
               f'selected position: {self.selected_position}, '
-              f'max piece: {self.max_piece_for_player(self.current_player)}')
-        max_piece = self.max_piece_for_player(self.current_player)
-        if self.game.table.all_pieces_in_house(1):
-            if self.selected_position == max_piece:
-                if value <= self.dice_to_do[0]:
-                    self.dice_to_do.remove(self.dice_to_do[0])
-                    moves_made.append(value)
-                elif value <= self.dice_to_do[1]:
-                    self.dice_to_do.remove(self.dice_to_do[1])
-                    moves_made.append(value)
-                elif value <= self.dice_to_do[0] + self.dice_to_do[1]:  # to continue from here
-                    if self.current_player == 1:
-                        if self.selected_position + self.dice_to_do[0] in self.available_moves:
+              f'max piece: {max_piece}')
+        value_not_there = True
+        for i in range(4):
+            if i == 0:
+                if len(self.dice_to_do) < 1:
+                    break
+                if value in self.dice_to_do:
+                    value_not_there = False
+                    break
+            elif i == 1:
+                if len(self.dice_to_do) < 2:
+                    break
+                if value == self.dice_to_do[0] + self.dice_to_do[1]:
+                    value_not_there = False
+                    break
+            elif i == 2:
+                if len(self.dice_to_do) < 3:
+                    break
+                if value == self.dice_to_do[0] * 3:
+                    value_not_there = False
+                    break
+            else:
+                if len(self.dice_to_do) < 4:
+                    break
+                if value == self.dice_to_do[0] * 4:
+                    value_not_there = False
+                    break
+        if self.game.table.all_pieces_in_house(current_player):
+            if current_player == 1:
+                if value_not_there:
+                    if max_piece == self.selected_position:
+                        if value <= self.dice_to_do[0]:
+                            self.dice_to_do.remove(self.dice_to_do[0])
+                            moves_made.append(value)
+                            return moves_made
+                        elif value <= self.dice_to_do[1]:
+                            self.dice_to_do.remove(self.dice_to_do[1])
+                            moves_made.append(value)
+                            return moves_made
+                        elif value <= self.dice_to_do[0] + self.dice_to_do[1]:
+                            if self.selected_position + self.dice_to_do[0] in self.available_moves:
+                                moves_made.append(self.dice_to_do[0])
+                                moves_made.append(self.dice_to_do[1])
+                            else:
+                                moves_made.append(self.dice_to_do[1])
+                                moves_made.append(self.dice_to_do[0])
+                            self.dice_to_do.remove(self.dice_to_do[1])
+                            self.dice_to_do.remove(self.dice_to_do[0])
+                            return moves_made
+                        if value <= self.dice_to_do[0] * 3:
                             moves_made.append(self.dice_to_do[0])
-                            moves_made.append(self.dice_to_do[1])
-                        else:
-                            moves_made.append(self.dice_to_do[1])
                             moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            self.dice_to_do = [self.dice_to_do[0]]
+                            return moves_made
+                        if value <= self.dice_to_do[0] * 4:
+                            moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            self.dice_to_do = []
+                            return moves_made
+            else:
+                if value not in self.dice_to_do \
+                        and value != self.dice_to_do[0] + self.dice_to_do[1] \
+                        and value != self.dice_to_do[0] * 3 \
+                        and value != self.dice_to_do[0] * 4:
+                    if max_piece == self.selected_position:
+                        if value <= self.dice_to_do[0]:
+                            self.dice_to_do.remove(self.dice_to_do[0])
+                            moves_made.append(value)
+                            return moves_made
+                        elif value <= self.dice_to_do[1]:
+                            self.dice_to_do.remove(self.dice_to_do[1])
+                            moves_made.append(value)
+                            return moves_made
+                        elif value <= self.dice_to_do[0] + self.dice_to_do[1]:
+                            if self.selected_position - self.dice_to_do[0] in self.available_moves:
+                                moves_made.append(self.dice_to_do[0])
+                                moves_made.append(self.dice_to_do[1])
+                            else:
+                                moves_made.append(self.dice_to_do[1])
+                                moves_made.append(self.dice_to_do[0])
+                            self.dice_to_do.remove(self.dice_to_do[1])
+                            self.dice_to_do.remove(self.dice_to_do[0])
+                            return moves_made
+                        if value <= self.dice_to_do[0] * 3:
+                            moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            self.dice_to_do = [self.dice_to_do[0]]
+                            return moves_made
+                        if value <= self.dice_to_do[0] * 4:
+                            moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            moves_made.append(self.dice_to_do[0])
+                            self.dice_to_do = []
+                            return moves_made
         if value in self.dice_to_do:
             self.dice_to_do.remove(value)
             moves_made.append(value)

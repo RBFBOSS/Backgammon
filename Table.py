@@ -6,17 +6,17 @@ class Table:
         self.captured_pieces = {1: 0, -1: 0}
 
     def prepare_table(self):
-        # self.positions[0] = -2
-        # self.positions[5] = 5
-        # self.positions[7] = 3
-        # self.positions[11] = -5
-        # self.positions[12] = 5
-        # self.positions[16] = -3
-        # self.positions[18] = -5
-        # self.positions[23] = 2
-        self.positions[0] = 1
-        self.positions[1] = 1
-        self.positions[23] = -1
+        self.positions[0] = -2
+        self.positions[5] = 5
+        self.positions[7] = 3
+        self.positions[11] = -5
+        self.positions[12] = 5
+        self.positions[16] = -3
+        self.positions[18] = -5
+        self.positions[23] = 2
+        # self.positions[0] = 1
+        # self.positions[1] = 1
+        # self.positions[23] = -1
 
     def print_table(self):
         print('-----------------')
@@ -44,6 +44,7 @@ class Table:
                     player.points += 1
                     self.positions[position] -= 1
                 elif self.positions[position - steps] == -1:
+                    self.positions[position] -= 1
                     self.captured_pieces[-1] += 1
                     self.positions[position - steps] = 1
                     print('captured piece')
@@ -64,6 +65,7 @@ class Table:
                     player.points += 1
                     self.positions[position] += 1
                 elif self.positions[position + steps] == 1:
+                    self.positions[position] += 1
                     self.captured_pieces[1] += 1
                     self.positions[position + steps] = -1
                     print('captured piece')
@@ -72,53 +74,67 @@ class Table:
                     self.positions[position + steps] -= 1
         return True
 
+    def max_piece_for_player(self, player_color):
+        max_piece = 0
+        if player_color == 1:
+            for i in range(5):
+                if self.positions[i] * player_color > 0:
+                    max_piece = i
+        else:
+            for i in range(18, 24):
+                if self.positions[i] * player_color > 0:
+                    max_piece = i
+                    break
+        print(f'Max piece for player {player_color}: {max_piece}')
+        return max_piece
+
     def validate_move(self, player, position, steps):
-        # I will make it so the captured pieces start from -1 and 24
         if player == 1:
-            if self.positions[position] <= 0:
-                return False
             if self.captured_pieces[1] > 0:
+                print(f'captured pieces for {player}')
                 if position != 24:
                     return False
                 if self.positions[position - steps] < -1:
                     return False
+            elif self.positions[position] <= 0:
+                return False
             elif self.all_pieces_in_house(player):
-                if position - steps < 0:
+                if position - steps == -1:
                     return True
-                if self.positions[position - steps] < -1:
-                    return False
-            else:
-                if position == 24:
-                    return False
-                if self.positions[position] <= 0:
-                    return False
-                if position - steps < 0:
-                    if self.all_pieces_in_house(player):
+                if position - steps < -1:
+                    if self.max_piece_for_player(player) == position:
                         return True
                     return False
                 if self.positions[position - steps] < -1:
                     return False
+            else:
+                if position - steps <= -1:
+                    return False
+                if self.positions[position] <= 0:
+                    return False
+                if self.positions[position - steps] < -1:
+                    return False
         else:
-            if self.positions[position] >= 0:
-                return False
             if self.captured_pieces[-1] > 0:
                 if position != -1:
                     return False
                 if self.positions[position + steps] > 1:
                     return False
+            elif self.positions[position] >= 0:
+                return False
             elif self.all_pieces_in_house(player):
-                if position + steps > 23:
+                if position + steps == 24:
                     return True
+                if position + steps > 24:
+                    if self.max_piece_for_player(player) == position:
+                        return True
+                    return False
                 if self.positions[position + steps] > 1:
                     return False
             else:
+                if position + steps >= 24:
+                    return False
                 if position == -1:
-                    return False
-                if self.positions[position] >= 0:
-                    return False
-                if position + steps > 23:
-                    if self.all_pieces_in_house(player):
-                        return True
                     return False
                 if self.positions[position + steps] > 1:
                     return False
