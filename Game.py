@@ -23,6 +23,14 @@ class Game:
             first_player = 2
         return first_player
 
+    def pick_human(self):
+        self.dice.roll_dice()
+        if self.dice.values[0] >= self.dice.values[1]:
+            human = 1
+        else:
+            human = 2
+        return human
+
     def game_finished(self):
         if self.player1.points == 15 or self.player2.points == 15:
             return True

@@ -2,7 +2,8 @@ import sys
 import tkinter as tk
 
 from Game import Game
-from GameGUI import GameGUI
+from GameGUIAI import GameGUIAI
+from GameGUIPVP import GameGUIPVP
 
 if __name__ == "__main__":
     if len(sys.argv) != 2 or sys.argv[1].lower() not in ['pvp', 'pvai']:
@@ -12,5 +13,8 @@ if __name__ == "__main__":
     game_mode = sys.argv[1]
     root = tk.Tk()
     game = Game(game_mode)
-    app = GameGUI(root, game)
+    if game_mode == 'pvp':
+        app = GameGUIPVP(root, game)
+    else:
+        app = GameGUIAI(root, game)
     root.mainloop()

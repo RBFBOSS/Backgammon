@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 import tkinter as tk
 
 
-class GameGUI:
+class GameGUIPVP:
     def __init__(self, root_input, game):
         self.dice_to_do = []
         self.captured_black = None
