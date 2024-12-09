@@ -311,7 +311,7 @@ class GameGUI:
                 elif value <= self.dice_to_do[1]:
                     self.dice_to_do.remove(self.dice_to_do[1])
                     moves_made.append(value)
-                elif value <= self.dice_to_do[0] + self.dice_to_do[1]: # to continue from here
+                elif value <= self.dice_to_do[0] + self.dice_to_do[1]:  # to continue from here
                     if self.current_player == 1:
                         if self.selected_position + self.dice_to_do[0] in self.available_moves:
                             moves_made.append(self.dice_to_do[0])
