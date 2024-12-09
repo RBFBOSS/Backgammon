@@ -49,47 +49,47 @@ class Game:
         if player_color == 1:
             if self.table.validate_move(player_color, position, dice_values[0]):
                 dice1_ok = True
-                available_moves.append(position - dice_values[0])
+                available_moves.append(max(position - dice_values[0], -1))
             if len(dice_values) == 1:
                 return available_moves
             if self.table.validate_move(player_color, position, dice_values[1]):
                 dice2_ok = True
-                available_moves.append(position - dice_values[1])
+                available_moves.append(max(position - dice_values[1], -1))
             if (dice1_ok or dice2_ok) \
                     and self.table.validate_move(player_color, position, dice_values[0] + dice_values[1]):
-                available_moves.append(position - dice_values[0] - dice_values[1])
+                available_moves.append(max(position - dice_values[0] - dice_values[1], -1))
                 dice3_ok = True
             if len(dice_values) == 2:
                 return available_moves
             if dice3_ok and self.table.validate_move(player_color, position, dice_values[0] * 3):
-                available_moves.append(position - dice_values[0] * 3)
+                available_moves.append(max(position - dice_values[0] * 3, -1))
                 dice4_ok = True
             if len(dice_values) == 3:
                 return available_moves
             if dice4_ok and self.table.validate_move(player_color, position, dice_values[0] * 4):
-                available_moves.append(position - dice_values[0] * 4)
+                available_moves.append(max(position - dice_values[0] * 4, -1))
         else:
             if self.table.validate_move(player_color, position, dice_values[0]):
                 dice1_ok = True
-                available_moves.append(position + dice_values[0])
+                available_moves.append(min(position + dice_values[0], 24))
             if len(dice_values) == 1:
                 return available_moves
             if self.table.validate_move(player_color, position, dice_values[1]):
                 dice2_ok = True
-                available_moves.append(position + dice_values[1])
+                available_moves.append(min(position + dice_values[1], 24))
             if (dice1_ok or dice2_ok) \
                     and self.table.validate_move(player_color, position, dice_values[0] + dice_values[1]):
-                available_moves.append(position + dice_values[0] + dice_values[1])
+                available_moves.append(min(position + dice_values[0] + dice_values[1], 24))
                 dice3_ok = True
             if len(dice_values) == 2:
                 return available_moves
             if dice3_ok and self.table.validate_move(player_color, position, dice_values[0] * 3):
-                available_moves.append(position + dice_values[0] * 3)
+                available_moves.append(min(position + dice_values[0] * 3, 24))
                 dice4_ok = True
             if len(dice_values) == 3:
                 return available_moves
             if dice4_ok and self.table.validate_move(player_color, position, dice_values[0] * 4):
-                available_moves.append(position + dice_values[0] * 4)
+                available_moves.append(min(position + dice_values[0] * 4, 24))
         print(available_moves)
         return available_moves
 
