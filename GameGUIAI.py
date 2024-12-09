@@ -73,27 +73,34 @@ class GameGUIAI:
                                                                               triangle_clicked,
                                                                               self.dice_to_do)
         self.update_table()
+        self.root.after(1000, self.perform_ai_moves, triangle_clicked)
+
+    def perform_ai_moves(self, triangle_clicked):
         player = self.game.player1 if self.current_player == 1 else self.game.player2
         moves_made = self.eliminate_dice_from_dice_to_be_played(abs(triangle_clicked - self.selected_position))
-        for move in moves_made:
-            self.game.table.move_piece(player, self.selected_position,
-                                       move)
+        self.perform_moves(player, moves_made, 0)
+
+    def perform_moves(self, player, moves_made, index):
+        if index < len(moves_made):
+            move = moves_made[index]
+            self.game.table.move_piece(player, self.selected_position, move)
             if player.player_color == 1:
                 self.selected_position -= move
             else:
                 self.selected_position += move
-        self.available_moves = None
-        if self.game.game_finished():
-            print(f"Game finished. Winner: {player.name}")
             self.update_table()
-            return
-        self.update_table()
-        sleep(1)
-        if not self.dice_to_do:
-            self.current_player = 3 - self.current_player
-            self.roll_dice()
-            return
-        self.ai_move()
+            self.root.after(1000, self.perform_moves, player, moves_made, index + 1)
+        else:
+            self.available_moves = None
+            if self.game.game_finished():
+                print(f"Game finished. Winner: {player.name}")
+                self.update_table()
+                return
+            if not self.dice_to_do:
+                self.current_player = 3 - self.current_player
+                self.roll_dice()
+                return
+            self.ai_move()
 
     def human_move(self, event):
         current_player_color = 1 if self.current_player == 2 else -1
