@@ -125,8 +125,8 @@ class GameGUIAI:
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self.clicked_screen)
 
-        self.roll_button = tk.Button(self.root, text="Roll Dice", command=self.roll_dice)
-        self.roll_button.place(x=300, y=550)
+        # self.roll_button = tk.Button(self.root, text="Roll Dice", command=self.roll_dice)
+        # self.roll_button.place(x=300, y=550)
 
         self.player1_label = tk.Label(self.root, text=f"{self.game.player1.name} (Black)", font=("Arial", 14, "bold"))
         self.player1_label.place(x=99, y=520)
@@ -242,7 +242,7 @@ class GameGUIAI:
                 ----------
                 event : tk.Event
                     The event object containing information about the click event.
-            """
+        """
         current_player_color = 1 if self.current_player == 2 else -1
         if self.game.game_finished():
             sys.exit()

@@ -175,6 +175,7 @@ class Table:
                 if position != 24:
                     return False
                 if self.positions[position - steps] < -1:
+                    print('too many pieces')
                     return False
             elif self.positions[position] <= 0:
                 return False
@@ -199,6 +200,7 @@ class Table:
                 if position != -1:
                     return False
                 if self.positions[position + steps] > 1:
+                    print('too many pieces')
                     return False
             elif self.positions[position] >= 0:
                 return False
